@@ -1,0 +1,13 @@
+{
+  "ProjectName": "aws-webapp",
+  "vpc": {
+    "cidr": "10.10.10.0/24",
+    "subnet": "10.10.10.0/26",
+    "az": "us-east-1a",
+    "dest-cidr": "0.0.0.0/0",
+    "port": 80
+  },
+  "KeyPair": {
+    "file": "keypair.pem"
+  }
+}
