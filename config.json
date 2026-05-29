@@ -5,9 +5,27 @@
     "subnet": "10.10.10.0/26",
     "az": "us-east-1a",
     "dest-cidr": "0.0.0.0/0",
-    "port": 80
+    "ports": [
+      80,
+      443
+    ]
   },
   "KeyPair": {
     "file": "keypair.pem"
+  },
+  "TomcatServer": {
+    "Ports": [
+      8080
+    ]
+  },
+  "Backend": {
+    "Ports": [
+      3306,
+      11211,
+      5672
+    ]
+  },
+  "ec2": {
+    "ami": "ami-00e801948462f718a"
   }
 }
