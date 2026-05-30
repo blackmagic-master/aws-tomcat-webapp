@@ -7,7 +7,8 @@ __all__ = [
     "igw",
     "route",
     "key",
-    "ec2"
+    "ec2",
+    "dns"
 ]
 # AWS resources
 from . import vpc
@@ -17,6 +18,7 @@ from . import igw
 from . import route
 from . import key
 from . import ec2
+from . import dns
 # Management
 from . import setup
 from . import vars

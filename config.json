@@ -25,7 +25,8 @@
       5672
     ]
   },
-  "ec2": {
-    "ami": "ami-00e801948462f718a"
+  "Ec2": {
+    "BackendAmi": "ami-00e801948462f718a",
+    "TomcatAmi": "ami-091138d0f0d41ff90"
   }
 }

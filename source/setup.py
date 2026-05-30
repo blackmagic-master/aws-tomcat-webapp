@@ -5,6 +5,7 @@ from .route import *
 from .sec_group import *
 from .key import *
 from .ec2 import *
+from .dns import *
 
 def init(config):
     # initialize
@@ -28,17 +29,27 @@ def init(config):
     sg['BACKEND'].add_allow_sg_rule(sg['TOMCAT'].id, "Backend")
     sg['BACKEND'].add_allow_ssh()
     sg['TOMCAT'].add_allow_ssh()
+    sg['TOMCAT'].add_allow_port_rule()
     kp = KeyPair(config)
-    ec2 = EC2(config, "BACKEND", kp.name, sg['BACKEND'].id, subnet.id)
+    ec2 = {
+        "MYSQL": EC2(config=config, prefix="MYSQL", kp_name=kp.name, sg_id=sg['BACKEND'].id, subnet_id=subnet.id, dns_name="db01"),
+        "RABBITMQ": EC2(config=config, prefix="RABBITMQ", kp_name=kp.name, sg_id=sg['BACKEND'].id, subnet_id=subnet.id, dns_name="rmq01"),
+        "MEMCACHE": EC2(config=config, prefix="MEMCACHE", kp_name=kp.name, sg_id=sg['BACKEND'].id, subnet_id=subnet.id, dns_name="mq01"),
+        "TOMCAT": EC2(config=config, prefix="TOMCAT", kp_name=kp.name, sg_id=sg['TOMCAT'].id, subnet_id=subnet.id, dns_name="app01")
+    }
+    hz = HostedZone(config, vpc.id)
+    for instance in ec2:
+        hz.add_a_record(ec2[instance].dns_name, ec2[instance].private_ip)
     # kp.get()
     #
     # # clean up
     con = input()
-    ec2.remove()
+    hz.remove()
+    for instance in ec2:
+        ec2[instance].remove()
     kp.remove()
-    sg['BACKEND'].remove()
-    sg['TOMCAT'].remove()
-    sg['LB'].remove()
+    for group in sg:
+        sg[group].remove()
     rt.disassociate()
     rt.delete_route()
     rt.remove()
