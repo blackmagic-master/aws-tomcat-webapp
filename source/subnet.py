@@ -2,14 +2,16 @@ from .vars import *
 from .checks import check_response
 
 class Subnet:
-    def __init__(self, config, vpc_id):
+    def __init__(self, config, vpc_id, cidr, az):
         self.config = config
         self.vpc_id = vpc_id
         self.name = config['ProjectName'] + "-subnet"
+        self.cidr = cidr
+        self.az = az
         self.subnet = ec2_client.create_subnet(
             VpcId=vpc_id,
-            CidrBlock=self.config['vpc']['cidr'],
-            AvailabilityZone=self.config['vpc']['az'],
+            CidrBlock=self.cidr,
+            AvailabilityZone=self.az,
             TagSpecifications=[
                 {
                     'ResourceType': 'subnet',

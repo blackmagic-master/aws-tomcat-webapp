@@ -19,12 +19,34 @@ class HostedZone:
             }
         )
         self.id = hz['HostedZone']['Id']
-    def add_a_record(self, dns_name, ip):
+    def create_a_record(self, dns_name, ip):
         route53_client.change_resource_record_sets(
             ChangeBatch={
                     'Changes': [
                         {
                             'Action': 'CREATE',
+                            'ResourceRecordSet': {
+                                'Name': dns_name + "." + self.name,
+                                'ResourceRecords': [
+                                    {
+                                        'Value': ip,
+                                    },
+                                ],
+                                'TTL': 60,
+                                'Type': 'A',
+                            },
+                        },
+                    ],
+                    'Comment': 'Web server for example.com',
+                },
+                HostedZoneId=self.id,
+            )
+    def delete_a_record(self, dns_name, ip):
+        route53_client.change_resource_record_sets(
+            ChangeBatch={
+                    'Changes': [
+                        {
+                            'Action': 'DELETE',
                             'ResourceRecordSet': {
                                 'Name': dns_name + "." + self.name,
                                 'ResourceRecords': [

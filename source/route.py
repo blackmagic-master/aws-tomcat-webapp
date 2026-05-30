@@ -4,7 +4,7 @@ from .checks import check_response
 class RouteTable:
     def __init__(self, config, vpc_id):
         self.igw_id = None
-        self.assosiation_id = None
+        self.association_id = []
         self.vpc_id = vpc_id
         self.subnet_id = None
         self.config = config
@@ -42,16 +42,17 @@ class RouteTable:
         )
     def associate(self, subnet_id):
         self.subnet_id = subnet_id
-        self.assosiation_id = ec2_client.associate_route_table(
+        self.association_id.append(ec2_client.associate_route_table(
             RouteTableId=self.id,
             SubnetId=self.subnet_id
-        )['AssociationId']
+        )['AssociationId'])
     def disassociate(self):
-        check_response(
-            ec2_client.disassociate_route_table(
-                AssociationId=self.assosiation_id
+        for association_id in self.association_id:
+            check_response(
+                ec2_client.disassociate_route_table(
+                    AssociationId=association_id
+                )
             )
-        )
     def remove(self):
         check_response(
             ec2_client.delete_route_table(

@@ -2,7 +2,7 @@ import boto3
 
 ec2_client = boto3.client('ec2')
 route53_client = boto3.client('route53')
-
+elbv_client = boto3.client('elbv2')
 sg_names = {
     "LB": "load-balancer",
     "TOMCAT": "tomcat-server",
