@@ -1,7 +1,9 @@
 from .vars import *
 from .checks import check_response
 
+# VPC class
 class Vpc:
+    # initializing a VPC
     def __init__(self, config):
         self.config = config
         self.name = config['ProjectName'] + "-vpc"
@@ -20,7 +22,8 @@ class Vpc:
             ]
         )
         self.id = self.vpc['Vpc']['VpcId']
-
+        print("Created a VPC: " + self.name + " " + self.id)
+    # adding the DNS support for the VPC
     def enable_dns_support(self):
         check_response(
             ec2_client.modify_vpc_attribute(
@@ -38,6 +41,7 @@ class Vpc:
                 VpcId=self.id
             )
         )
+    # removing the VPC
     def remove(self):
         check_response(
             ec2_client.delete_vpc(VpcId=self.id)

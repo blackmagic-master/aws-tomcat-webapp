@@ -1,7 +1,9 @@
 from .vars import *
 from .checks import check_response
 
+# Subnet class
 class Subnet:
+    # initializing a subnet
     def __init__(self, config, vpc_id, cidr, az):
         self.config = config
         self.vpc_id = vpc_id
@@ -25,11 +27,14 @@ class Subnet:
             ]
         )
         self.id = self.subnet['Subnet']['SubnetId']
+        print("Created a subnet: " + self.name + " " + self.id)
+    # allowing the subnet to get a public IP address
     def enable_public_ip(self):
         ec2_client.modify_subnet_attribute(
             SubnetId=self.id,
             MapPublicIpOnLaunch={'Value': True}
         )
+    # removing the subnet
     def remove(self):
         check_response(
             ec2_client.delete_subnet(

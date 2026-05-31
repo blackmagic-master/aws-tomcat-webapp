@@ -8,8 +8,7 @@
     "alt-az": "us-east-1b",
     "dest-cidr": "0.0.0.0/0",
     "ports": [
-      80,
-      443
+      80
     ]
   },
   "KeyPair": {

@@ -1,6 +1,8 @@
 from .vars import *
 
+# EC2 instance class
 class EC2:
+    # initializing an instance
     def __init__(self, config, prefix, kp_name, sg_id, subnet_id, dns_name):
         self.config = config
         self.dns_name = dns_name
@@ -78,6 +80,9 @@ class EC2:
         self.id = self.response['Reservations'][0]['Instances'][0]['InstanceId']
         waiter.wait(InstanceIds=[self.id])
         self.private_ip = self.response['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['PrivateIpAddress']
+        print("Created an instance: " + self.name + " " + self.id)
+        print("Private IP: " + self.private_ip)
+    # removing the instance
     def remove(self):
         ec2_client.terminate_instances(
             InstanceIds=[

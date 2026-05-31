@@ -1,6 +1,8 @@
 from .vars import *
 
+# Target group class
 class TargetGroup:
+    # initializing a target group
     def __init__(self, config, vpc_id):
         self.config = config
         self.name = self.config['ProjectName'].lower() + "-tg"
@@ -30,6 +32,8 @@ class TargetGroup:
             ],
             IpAddressType='ipv4'        )
         self.arn = self.tg['TargetGroups'][0]['TargetGroupArn']
+        print("Created a TargetGroup: " + self.name + " " + self.arn)
+    # adding the instance to the group
     def register_targets(self, ec2_id):
         elbv_client.register_targets(
             TargetGroupArn=self.arn,
@@ -40,6 +44,7 @@ class TargetGroup:
                 }
             ]
         )
+    # removing the instance from the group
     def deregister_targets(self, ec2_id):
         elbv_client.deregister_targets(
             TargetGroupArn=self.arn,
@@ -50,6 +55,7 @@ class TargetGroup:
                 }
             ]
         )
+    # removing the target group
     def remove(self):
         elbv_client.delete_target_group(
             TargetGroupArn=self.arn
