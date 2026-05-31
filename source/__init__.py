@@ -1,6 +1,6 @@
 # init variable
 __all__ = [
-    "setup",
+    "run",
     "vpc",
     "sec_group",
     "subnet",
@@ -25,6 +25,6 @@ from . import dns
 from . import targetgroup
 from . import loadbalancer
 # Management
-from . import setup
+from . import run
 from . import vars
 from . import checks
