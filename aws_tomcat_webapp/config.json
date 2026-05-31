@@ -1,0 +1,33 @@
+{
+  "ProjectName": "aws-webapp",
+  "vpc": {
+    "cidr": "10.10.0.0/16",
+    "subnet1": "10.10.10.0/24",
+    "subnet2": "10.10.20.0/24",
+    "az": "us-east-1a",
+    "alt-az": "us-east-1b",
+    "dest-cidr": "0.0.0.0/0",
+    "ports": [
+      80
+    ]
+  },
+  "KeyPair": {
+    "file": "keypair.pem"
+  },
+  "TomcatServer": {
+    "Ports": [
+      8080
+    ]
+  },
+  "Backend": {
+    "Ports": [
+      3306,
+      11211,
+      5672
+    ]
+  },
+  "Ec2": {
+    "BackendAmi": "ami-00e801948462f718a",
+    "TomcatAmi": "ami-091138d0f0d41ff90"
+  }
+}
