@@ -2,17 +2,106 @@
 
 A Python-based Infrastructure as Code (IaC) automation tool that provisions, configures, and destroys a highly available multi-tier web application architecture on Amazon Web Services (AWS).
 
+This project is now distributed as a **versioned Python package**, available via **GitHub Releases** and installable through `pip`. It can also be built locally as a standard Python package.
+
+---
+
 ## Overview
 
-This project deploys:
+This tool automates deployment of a full AWS-based web application stack, including:
 
-- Application Load Balancer (ALB)
-- Apache Tomcat application server
-- MariaDB/MySQL database
-- RabbitMQ message broker
-- Memcached cache server
-- Route 53 private hosted zone
-- VPC, subnets, security groups, and routing infrastructure
+* Application Load Balancer (ALB)
+* Apache Tomcat application server
+* MariaDB / MySQL database
+* RabbitMQ message broker
+* Memcached cache layer
+* Route 53 private hosted zone
+* Full VPC networking (subnets, routing, security groups)
+
+---
+
+## Package installation
+
+### Install via pip (recommended)
+
+Download the latest release and install directly:
+
+```bash
+pip install aws-tomcat-webapp
+```
+
+Or install a specific version:
+
+```bash
+pip install aws-tomcat-webapp==1.0.1
+```
+
+---
+
+### Install from GitHub Release (wheel or tar.gz)
+
+Download the asset from the **Releases page**, then install:
+
+```bash
+pip install aws_tomcat_webapp-1.0.1-py3-none-any.whl
+```
+
+or:
+
+```bash
+pip install aws_tomcat_webapp-1.0.1.tar.gz
+```
+
+---
+
+### Build from source
+
+You can also build the package locally:
+
+```bash
+git clone https://github.com/blackmagic-master/aws-tomcat-webapp.git
+cd aws-tomcat-webapp
+
+python -m build
+```
+
+Then install the generated artifact:
+
+```bash
+pip install dist/aws_tomcat_webapp-*.whl
+```
+
+---
+
+## CLI usage
+
+After installation, the orchestrator is available as a command-line tool:
+
+### Deploy infrastructure
+
+**Permanent deployment:**
+
+```bash
+aws-webapp up --permanent
+# or
+aws-webapp up -p
+```
+
+**Temporary deployment:**
+
+```bash
+aws-webapp up --temporary
+# or
+aws-webapp up -t
+```
+
+---
+
+### Destroy infrastructure
+
+```bash
+aws-webapp down
+```
 
 ---
 
@@ -45,104 +134,23 @@ This project deploys:
                 | Memcached         |
                 | Port 11211        |
                 +-------------------+
-
 ```
 
 ---
 
-## Prerequisites
+## Private DNS mappings
 
-Ensure your environment meets the following baseline requirements:
-
-* **Python 3.x**
-* **AWS CLI** configured with proper administrative access keys.
-* An active **AWS Account**.
-
-### Install dependencies
-
-```bash
-pip install boto3 requests
-
-```
-
----
-
-## Usage
-
-### Deploy infrastructure
-
-**Permanent deployment:**
-
-```bash
-python aws-tomcat-webapp.py up --permanent
-# OR
-python aws-tomcat-webapp.py up -p
-
-```
-
-**Temporary deployment:**
-
-```bash
-python aws-tomcat-webapp.py up --temporary
-# OR
-python aws-tomcat-webapp.py up -t
-
-```
-
-### Destroy infrastructure
-
-```bash
-python aws-tomcat-webapp.py down
-
-```
-
----
-
-### Private DNS mappings
-
-* `db01.aws-webapp.hz` (Database entrypoint)
-* `rmq01.aws-webapp.hz` (Message broker entrypoint)
-* `mc01.aws-webapp.hz` (Caching layer entrypoint)
-
----
-
-## Example output
-
-```text
-Created a route table: aws-webapp-rt rtb-xxxxxxxx
-Created a security group: aws-webapp-LB-sg sg-xxxxxxxx
-Created a security group: aws-webapp-TOMCAT-sg sg-xxxxxxxx
-Created a security group: aws-webapp-BACKEND-sg sg-xxxxxxxx
-
-Your application is ready:
-aws-webapp-lb-xxxxxxxx.us-east-1.elb.amazonaws.com
-
-```
+* `db01.aws-webapp.hz` → Database endpoint
+* `rmq01.aws-webapp.hz` → Message broker endpoint
+* `mc01.aws-webapp.hz` → Cache layer endpoint
 
 ---
 
 ## Configuration
 
-All architectural parameters, network layouts, and Amazon Machine Images (AMIs) are centrally managed via the `config.json` file in the root directory.
+Configuration is managed through `config.json`.
 
-### AWS authentication (required)
-
-Before running the orchestration tool, you must authenticate your local environment with your AWS credentials. The automation script leverages your local AWS CLI profile settings to securely invoke AWS APIs.
-
-Run the following command and input your AWS Access Key, Secret Key, and default region:
-
-```bash
-aws configure
-
-```
-
-**Important:** The IAM entity used must have sufficient administrative permissions to provision core infrastructure, including custom VPCs, EC2 instances, Application Load Balancers, Route 53 zones, and Security Groups.
-
----
-
-### The `config.json` structure
-
-The project includes a pre-configured configuration file. You can adjust CIDR blocks, opening ports, and AMI selections directly within `config.json`:
+Example:
 
 ```json
 {
@@ -154,54 +162,87 @@ The project includes a pre-configured configuration file. You can adjust CIDR bl
     "az": "us-east-1a",
     "alt-az": "us-east-1b",
     "dest-cidr": "0.0.0.0/0",
-    "ports": [
-      80
-    ]
+    "ports": [80]
   },
   "KeyPair": {
     "file": "keypair.pem"
   },
   "TomcatServer": {
-    "Ports": [
-      8080
-    ]
+    "Ports": [8080]
   },
   "Backend": {
-    "Ports": [
-      3306,
-      11211,
-      5672
-    ]
+    "Ports": [3306, 11211, 5672]
   },
   "Ec2": {
-    "BackendAmi": "ami-00e801948462f718a",
-    "TomcatAmi": "ami-091138d0f0d41ff90"
+    "BackendAmi": "ami-xxxxxxxxxxxx",
+    "TomcatAmi": "ami-xxxxxxxxxxxx"
   }
 }
-
 ```
-
-* **`ProjectName`**: Serves as the naming prefix for AWS tags and resource labels. It is also used to derive the name of the EC2 Key Pair in AWS.
-* **`vpc`**: Controls network segmentation, setting target Availability Zones (`az`, `alt-az`) and the edge load balancer inbound port (`80`).
-* **`KeyPair`**: Declares the local destination file name for the generated SSH private key.
-* **`TomcatServer` / `Backend**`: Explicit lists of internal ports mapped automatically to respective security groups.
-* **`Ec2`**: Contains fixed AMI IDs for the application tier and backend databases. *(Verify these are active IDs in your chosen region).*
 
 ---
 
-### State & asset artifacts
+## AWS authentication
 
-When you initialize a deployment using `python aws-tomcat-webapp.py up`, the orchestration tool automatically generates state artifacts in your local directory:
+Before using the tool, configure AWS credentials:
 
-* **Automated Key Pair Management:** The tool dynamically provisions a new AWS EC2 Key Pair using your `ProjectName`. The associated private key file (e.g., `keypair.pem`) is written straight to your root folder. Keep this private key secure to access your compute instances later.
-* **`infrastructure.json`:** This file serves as your environment's local state registry. It stores live instance IDs, VPC routing details, service configuration variables, and reference metadata for every provisioned cloud resource.
+```bash
+aws configure
+```
 
-**Critical Key Pair Conflict Check:** Before initiating a deployment, ensure that your target AWS region **does not** already have an existing Key Pair with a name matching your `ProjectName` (or a duplicate local key file). The script will fail or risk overriding configurations if a name collision occurs.
+Ensure the IAM user/role has permissions for:
 
-**Note:** Do not modify or delete `infrastructure.json`. The teardown tool (`python aws-tomcat-webapp.py down`) relies strictly on this file to locate, map, and cleanly remove your provisioned stack without leaving orphaned resources.
+* EC2
+* VPC
+* ELB / ALB
+* Route 53
+* Security Groups
+* IAM (limited keypair operations)
+
+---
+
+## State & artifacts
+
+During execution, the package generates local state files:
+
+* `infrastructure.json` → tracks deployed resources
+* `keypair.pem` → generated EC2 key pair
+
+Do not modify or delete `infrastructure.json`, as it is required for safe teardown.
+
+---
+
+## Example output
+
+```text
+Created route table: aws-webapp-rt rtb-xxxxxxxx
+Created security group: aws-webapp-LB-sg sg-xxxxxxxx
+Created security group: aws-webapp-TOMCAT-sg sg-xxxxxxxx
+Created security group: aws-webapp-BACKEND-sg sg-xxxxxxxx
+
+Deployment complete:
+aws-webapp-lb-xxxxxxxx.us-east-1.elb.amazonaws.com
+```
+
+---
+
+## Development & packaging
+
+To rebuild the package locally:
+
+```bash
+python -m build
+```
+
+To install in editable mode for development:
+
+```bash
+pip install -e .
+```
 
 ---
 
 ## Author
+
 BlackMagic Master
-Szymon G,
+Szymon G

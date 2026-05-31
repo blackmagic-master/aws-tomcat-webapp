@@ -4,6 +4,8 @@ import sys
 import requests
 from pathlib import Path
 
+version = "1.0.1"
+
 def start():
     config_path = Path(__file__).parent / "config.json"
     config_file = open(config_path, 'r')
